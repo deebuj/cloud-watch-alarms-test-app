@@ -1,0 +1,60 @@
+name: Deploy Lambda API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: "1.6.0"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-1
+
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./Lambda.Api
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./Lambda.Api
+
+    - name: Publish
+      run: dotnet publish --configuration Release --runtime linux-x64 --self-contained false
+      working-directory: ./Lambda.Api
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init -backend-config="bucket=myappnetwork-terraform-state" -backend-config="key=cloud-watch-alarms-test-app.tfstate"
+
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main'
+      working-directory: ./terraform
+      run: terraform apply -auto-approve
