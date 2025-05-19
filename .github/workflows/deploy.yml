@@ -52,9 +52,9 @@ jobs:
 
     - name: Terraform Plan
       working-directory: ./terraform
-      run: terraform plan
+      run: terraform plan -backend-config="bucket=myappnetwork-terraform-state" -backend-config="key=cloud-watch-alarms-test-app.tfstate"
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main'
       working-directory: ./terraform
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -backend-config="bucket=myappnetwork-terraform-state" -backend-config="key=cloud-watch-alarms-test-app.tfstate"

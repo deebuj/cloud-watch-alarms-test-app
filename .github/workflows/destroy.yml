@@ -1,0 +1,41 @@
+name: Destroy Lambda API Infrastructure
+
+on:
+  workflow_dispatch:   # Only manual trigger to prevent accidental destruction
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+        
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: "1.6.0"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-1
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: |
+        terraform init \
+          -backend-config="bucket=myappnetwork-terraform-state" \
+          -backend-config="key=cloud-watch-alarms-test-app.tfstate"
+
+    - name: Terraform Plan Destroy
+      working-directory: ./terraform
+      run: terraform plan -destroy -out=destroy.tfplan  -backend-config="bucket=myappnetwork-terraform-state" -backend-config="key=cloud-watch-alarms-test-app.tfstate"
+
+    - name: Terraform Destroy
+      working-directory: ./terraform
+      run: terraform apply -auto-approve destroy.tfplan -backend-config="bucket=myappnetwork-terraform-state" -backend-config="key=cloud-watch-alarms-test-app.tfstate"
