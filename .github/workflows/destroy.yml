@@ -25,6 +25,14 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: us-east-1
 
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./Lambda.Api
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./Lambda.Api
+
     - name: Terraform Init
       working-directory: ./terraform
       run: |
