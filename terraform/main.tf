@@ -74,6 +74,7 @@ data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "../Lambda.Api/bin/Release/net8.0/linux-x64/publish"
   output_path = "lambda.zip"
+  excludes    = terraform.workspace == "default" ? [] : ["*"]  # Exclude everything during destroy
 }
 
 resource "aws_lambda_function" "api" {
@@ -84,7 +85,7 @@ resource "aws_lambda_function" "api" {
   runtime         = "dotnet8"
   memory_size     = 256
   timeout         = 30
-  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  source_code_hash = fileexists("lambda.zip") ? data.archive_file.lambda_zip.output_base64sha256 : null
 
   environment {
     variables = {
