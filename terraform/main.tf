@@ -76,7 +76,8 @@ data "archive_file" "lambda_zip" {
   output_path = "lambda.zip"
 }
 
-resource "aws_lambda_function" "api" {  filename         = "lambda.zip"
+resource "aws_lambda_function" "api" {
+  filename         = "lambda.zip"
   function_name    = "cloud-watch-alarms-test"
   role            = aws_iam_role.lambda_role.arn
   handler         = "Lambda.Api"
