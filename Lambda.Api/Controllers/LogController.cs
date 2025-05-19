@@ -25,6 +25,20 @@ public class LogController : ControllerBase
         {
             var logStreamName = $"{DateTime.UtcNow:yyyy/MM/dd}/errors";
 
+            // Create log stream if it doesn't exist
+            try
+            {
+                await _cloudWatchLogs.CreateLogStreamAsync(new CreateLogStreamRequest
+                {
+                    LogGroupName = LogGroupName,
+                    LogStreamName = logStreamName
+                });
+            }
+            catch (ResourceAlreadyExistsException)
+            {
+                // Log stream already exists, which is fine
+            }
+
             // Log the message to CloudWatch
             await _cloudWatchLogs.PutLogEventsAsync(new PutLogEventsRequest
             {
