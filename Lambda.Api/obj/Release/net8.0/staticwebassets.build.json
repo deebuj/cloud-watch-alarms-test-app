@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "fiWTWZfUw0vk0wTuICHJSkJ+8tZfMlL1VhOGNs9noc0=",
+  "Source": "Lambda.Api",
+  "BasePath": "_content/Lambda.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

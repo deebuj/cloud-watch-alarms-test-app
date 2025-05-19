@@ -72,16 +72,15 @@ resource "aws_iam_role_policy" "cloudwatch_policy" {
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "../Lambda.Api/bin/Release/net9.0/linux-x64/publish"
+  source_dir  = "../Lambda.Api/bin/Release/net8.0/linux-x64/publish"
   output_path = "lambda.zip"
 }
 
-resource "aws_lambda_function" "api" {
-  filename         = "lambda.zip"
+resource "aws_lambda_function" "api" {  filename         = "lambda.zip"
   function_name    = "cloud-watch-alarms-test"
   role            = aws_iam_role.lambda_role.arn
   handler         = "Lambda.Api"
-  runtime         = "dotnet9"
+  runtime         = "dotnet8"
   memory_size     = 256
   timeout         = 30
 
